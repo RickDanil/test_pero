@@ -1,0 +1,55 @@
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+import org.testng.asserts.SoftAssert;
+
+public class VKCommunityTest {
+    private WebDriver driver;
+    private WebDriverWait wait;
+    private SoftAssert softAssert;
+    private String communityUrl = "https://vk.com/club225299895";
+
+    @BeforeMethod
+    public void setUp() {
+        System.setProperty("webdriver.chrome.driver", "path/to/chromedriver");
+        driver = new ChromeDriver();
+        wait = new WebDriverWait(driver, 10);
+        softAssert = new SoftAssert();
+        driver.manage().window().maximize();
+    }
+
+    @Test
+    public void testCommunityPage() {
+        driver.get(communityUrl);
+
+        // Проверка основных элементов
+        WebElement communityHeader = wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".page_header_title")));
+        WebElement latestPosts = wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".feed_item")));
+        WebElement memberCount = wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".page_stat_member_count")));
+
+        softAssert.assertTrue(communityHeader.isDisplayed(), "Заголовок сообщества не найден");
+        softAssert.assertTrue(latestPosts.isDisplayed(), "Последние посты не найдены");
+        softAssert.assertTrue(memberCount.isDisplayed(), "Количество участников не найдено");
+
+        // Дополнительные проверки
+        // Проверка наличия кнопки вступить
+        WebElement joinButton = wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector(".button_join")));
+        softAssert.assertTrue(joinButton.isDisplayed(), "Кнопка вступления не найдена");
+
+        // Проверка количества подписчиков
+        WebElement subscribersCount = wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".page_stat_subscribers_count")));
+        softAssert.assertTrue(subscribersCount.getText().contains(" подписчиков"), "Некорректное отображение количества подписчиков");
+    }
+
+    @AfterMethod
+    public void tearDown() {
+        softAssert.assertAll();
+        driver.quit();
+    }
+}
