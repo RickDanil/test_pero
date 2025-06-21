@@ -1,0 +1,55 @@
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+import org.testng.asserts.SoftAssert;
+
+public class VKMarketTest {
+    private WebDriver driver;
+    private WebDriverWait wait;
+    private SoftAssert softAssert;
+    private String productUrl = "https://vk.com/market/product/fyvaf-225299895-10044406";
+
+    @BeforeMethod
+    public void setUp() {
+        System.setProperty("webdriver.chrome.driver", "path/to/chromedriver");
+        driver = new ChromeDriver();
+        wait = new WebDriverWait(driver, 10);
+        softAssert = new SoftAssert();
+        driver.manage().window().maximize();
+    }
+
+    @Test
+    public void testProductCard() {
+        driver.get(productUrl);
+
+        // Проверка основных элементов
+        WebElement title = wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".market_item_title")));
+        WebElement price = wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".market_item_price")));
+        WebElement description = wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".market_item_description")));
+        
+        softAssert.assertTrue(title.isDisplayed(), "Заголовок товара не найден");
+        softAssert.assertTrue(price.isDisplayed(), "Цена товара не найдена");
+        softAssert.assertTrue(description.isDisplayed(), "Описание товара не найдено");
+
+        // Дополнительные проверки
+        // Проверка наличия кнопки "Добавить в корзину"
+        WebElement addToCart = wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector(".market_item_button")));
+        softAssert.assertTrue(addToCart.isDisplayed(), "Кнопка добавления в корзину не найдена");
+
+        // Проверка количества товара
+        WebElement quantity = wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".market_item_quantity")));
+        softAssert.assertTrue(quantity.getText().contains("шт"), "Некорректное отображение количества товара");
+    }
+
+    @AfterMethod
+    public void tearDown() {
+        softAssert.assertAll();
+        driver.quit();
+    }
+}
